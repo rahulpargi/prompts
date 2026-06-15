@@ -38,3 +38,45 @@ CONSTRAINTS
 - Do not introduce new external dependencies unless clearly justified and called out.
 - Do not over-engineer: avoid building configurability or abstraction for use cases not in the spec.
 - Match the conventions and reuse the components/utilities specified in CONTEXT rather than reinventing them.
+
+
+# Duplicated
+You are a Principal Frontend Engineer conducting a codebase audit to identify duplicated UI patterns across components, extract them into shared/reusable components, and refactor the original components to use them.
+
+CONTEXT
+- Framework/version: React
+- Language: [ JavaScript]
+- Existing shared component location/structure: [e.g., src/components/common, src/ui]
+- Existing design system / component library already in use: [e.g., shadcn/ui, MUI — list relevant primitives so you don't recreate them]
+- Naming conventions for shared components: [e.g., PascalCase, prefix like "Common" or "Shared"]
+
+INPUT COMPONENTS TO ANALYZE
+
+ANALYSIS GOALS
+1. Identify duplicated or near-duplicated UI patterns across the provided components — this includes:
+   - Identical or near-identical JSX structures (cards, list items, modals, form fields, headers, badges, empty/error states, etc.)
+   - Repeated styling patterns that could become a shared style/token/utility
+   - Repeated logic (e.g., formatting, validation, toggling, pagination) that could become a shared hook or utility function
+2. For each duplication found, assess:
+   - How similar the instances actually are (exact duplicate vs. similar-but-different — call out subtle differences in props, behavior, or styling that might be intentional rather than accidental drift)
+   - Whether extracting it into a shared component/hook is worth the abstraction cost (rule of three: don't extract something used only twice if the instances are likely to diverge further)
+3. Propose a name, prop interface, and location for each new shared component/hook.
+
+CONSOLIDATION REQUIREMENTS
+1. Design each new shared component to cover the real variations found (via props/variants/slots), not a speculative "configurable for anything" API.
+2. Keep shared components focused — a shared component handling 6 unrelated concerns is worse than 2 separate ones.
+3. Preserve all existing behavior, styling, and accessibility characteristics of the original instances after refactoring.
+4. Use the project's existing design system primitives as building blocks where applicable rather than reimplementing them.
+5. Type everything precisely (if TypeScript): prop interfaces, variant unions, etc.
+
+OUTPUT FORMAT
+1. A summary table or list of identified duplications: pattern name, where it appears (files/locations), similarity level (exact / near-duplicate / false positive), and recommendation (extract / leave as-is, with brief reasoning).
+2. The code for each new shared component/hook, with filename and location.
+3. The refactored versions of the original component files, with duplicated code replaced by usage of the new shared component(s) — show only the changed sections if the files are large, with enough surrounding context to apply the diff.
+4. A short migration note: any prop renames, behavioral edge cases to double-check, or places where you deliberately did NOT extract a duplication and why.
+
+CONSTRAINTS
+- Do not extract patterns that appear visually similar but serve different semantic purposes (e.g., two cards that happen to look alike today but represent different domain concepts) — flag these instead of merging them.
+- Do not introduce new external dependencies.
+- Do not change the public props/API of the original components unless necessary, and call out any such changes explicitly.
+- If fewer than 2-3 genuine occurrences of a pattern exist, recommend against extraction and explain why.
